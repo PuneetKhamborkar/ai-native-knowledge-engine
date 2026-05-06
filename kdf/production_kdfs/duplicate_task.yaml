@@ -1,0 +1,11 @@
+intent: duplicate_task
+domain: it
+keywords: [duplicate task, conflict]
+conditions: [duplicate, task]
+steps:
+  - Check existing records
+  - Reject duplicate
+edge_cases:
+  - duplicate → 409
+notes:
+  - Use unique constraints

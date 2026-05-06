@@ -1,0 +1,5 @@
+- id: admin_guide
+  domain: admin
+  type: doc
+  intent: setup
+  steps: [install, configure, monitor]

@@ -1,0 +1,129 @@
+version: 5.1
+type: troubleshooting
+
+id: duplicate_task
+
+intent:
+  name: duplicate_task
+
+  aliases:
+    - duplicate task created
+    - task created twice
+    - multiple tasks created
+
+vocabulary:
+  entity: [task]
+  action: [create]
+  failure: [duplicate]
+
+semantic:
+  entities: [task]
+  actions: [create]
+  failure_terms: [duplicate]
+  context_terms: [api, retry]
+
+signals:
+  base: [task, duplicate]
+
+  modifiers: [multiple]
+
+  weighted:
+    high: [duplicate task]
+    medium: [task created twice]
+    low: [issue]
+
+failure:
+  problem: Duplicate tasks created
+
+  causes:
+
+    - id: retry_issue
+      version: 1.1
+      label: Retry duplication
+      description: Multiple submissions
+
+      signal_map:
+        strong: [double_submit]
+        weak: [duplicate]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [api_log]
+        required: false
+
+resolution:
+  retry_issue:
+    steps:
+      - Avoid multiple clicks
+      - Implement idempotency
+    automation_possible: false
+
+diagnostics:
+  ambiguity_possible: false
+  clarification_questions: []
+  decision_tree: []
+
+context:
+  domain: task_management
+  feature: task_creation
+  platforms: [web]
+  user_roles: [user]
+
+relationships:
+  depends_on: [create_task_api]
+  upstream_failures: []
+  downstream_effects: [data_inconsistency]
+  related_intents: [task_not_saving]
+
+constraints:
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

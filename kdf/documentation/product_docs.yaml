@@ -1,0 +1,5 @@
+- id: product_overview
+  domain: documentation
+  type: product
+  intent: overview
+  steps: [intro, features, architecture]

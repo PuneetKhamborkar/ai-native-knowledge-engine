@@ -1,0 +1,60 @@
+- id: fix_module_not_found
+  domain: support
+  type: troubleshooting
+  intent: fix_import_error
+
+  error: ModuleNotFoundError
+
+  conditions:
+    - missing file
+    - wrong import path
+
+  steps:
+    - verify file exists
+    - check PYTHONPATH
+    - correct import
+
+  examples:
+    - error:
+        No module named 'llm_client'
+      fix:
+        ensure llm_client.py exists
+
+
+- id: fix_server_not_running
+  domain: support
+  type: troubleshooting
+  intent: fix_connection_error
+
+  error: connection refused
+
+  steps:
+    - check server running
+    - verify port
+    - restart app
+
+  examples:
+    - curl error:
+        connection refused
+      fix:
+        run python app.py
+
+
+- id: fix_syntax_error
+  domain: support
+  type: troubleshooting
+  intent: fix_code
+
+  error: SyntaxError
+
+  steps:
+    - check invalid characters
+    - validate indentation
+    - re-run
+
+  examples:
+    - error:
+        "=from flask"
+      fix:
+        remove "="
+

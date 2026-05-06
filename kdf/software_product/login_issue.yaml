@@ -1,0 +1,204 @@
+version: 5.1
+type: troubleshooting
+
+id: login_issue
+
+intent:
+  name: login_issue
+
+  aliases:
+    - cannot login
+    - login failed
+    - unable to sign in
+    - login not working
+
+  examples:
+    - I cannot login
+    - login is failing
+
+vocabulary:
+  entity: [user]
+  action: [login]
+  failure: [fail, denied]
+
+semantic:
+  entities: [user, account]
+  actions: [login, authenticate]
+  failure_terms: [fail, denied, error]
+  context_terms: [password, username]
+
+signals:
+  base:
+    - login
+    - fail
+
+  modifiers:
+    - error
+    - denied
+
+  weighted:
+    high:
+      - login failed
+    medium:
+      - cannot login
+    low:
+      - issue
+
+failure:
+  problem: Unable to login
+
+  causes:
+
+    - id: invalid_credentials
+      version: 1.1
+
+      label: Incorrect credentials
+
+      description: Username or password is incorrect
+
+      triggers:
+        - wrong password
+
+      indicators:
+        - invalid credentials message
+
+      impact:
+        - access denied
+
+      signal_map:
+        strong: [invalid_password]
+        weak: [wrong]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [ui_message]
+        required: false
+
+    - id: auth_service_failure
+      version: 1.1
+
+      label: Authentication service failure
+
+      description: Backend auth system unavailable
+
+      triggers:
+        - service down
+
+      indicators:
+        - timeout
+
+      impact:
+        - login blocked
+
+      signal_map:
+        strong: [auth_timeout]
+        weak: [error]
+
+      confidence:
+        base: 0.5
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [api_response]
+        required: false
+
+resolution:
+
+  invalid_credentials:
+    steps:
+      - Re-enter correct credentials
+      - Reset password if needed
+    automation_possible: false
+
+  auth_service_failure:
+    steps:
+      - Retry after some time
+      - Check system status
+    automation_possible: false
+
+diagnostics:
+
+  ambiguity_possible: true
+
+  clarification_questions:
+    - Are credentials correct?
+    - Are you seeing timeout?
+
+  decision_tree:
+
+    - condition: invalid_credentials
+      ask: Are you sure your password is correct?
+
+    - condition: auth_service_failure
+      ask: Are you seeing timeout?
+
+context:
+  domain: authentication
+  feature: login
+  platforms: [web, mobile]
+  user_roles: [admin, user]
+
+relationships:
+
+  depends_on: [auth_api]
+
+  upstream_failures: []
+
+  downstream_effects: [user_lockout]
+
+  related_intents: [password_reset]
+
+constraints:
+
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

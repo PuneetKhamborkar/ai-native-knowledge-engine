@@ -1,0 +1,12 @@
+intent: delete_task
+domain: it
+keywords: [delete task, remove task]
+conditions: [delete, task]
+steps:
+  - Find task
+  - Delete record
+api:
+  method: DELETE
+  endpoint: /tasks/{id}
+notes:
+  - Return 204 or success msg

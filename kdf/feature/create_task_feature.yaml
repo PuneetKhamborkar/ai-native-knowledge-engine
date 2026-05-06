@@ -1,0 +1,12 @@
+id: create_task_feature
+type: feature
+
+intent: create_task
+
+context:
+  - business
+  - feature
+
+requirements:
+  - user can create task
+  - system should validate inputs

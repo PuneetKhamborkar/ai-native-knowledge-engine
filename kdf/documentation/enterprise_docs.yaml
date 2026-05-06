@@ -1,0 +1,5 @@
+- id: enterprise_architecture
+  domain: enterprise
+  type: architecture
+  intent: system_design
+  steps: [components, data_flow, integrations]

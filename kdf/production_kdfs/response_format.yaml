@@ -1,0 +1,11 @@
+intent: api_response
+domain: it
+keywords: [response format, api response]
+conditions: [response, api]
+steps:
+  - Return JSON
+  - Include status code
+examples:
+  - {"id":"1","title":"task"}
+notes:
+  - Follow REST

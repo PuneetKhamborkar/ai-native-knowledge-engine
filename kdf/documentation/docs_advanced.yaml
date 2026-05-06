@@ -1,0 +1,37 @@
+- id: api_doc_generator
+  domain: documentation
+  type: generator
+  intent: generate_api_docs
+
+  inputs:
+    endpoint: string
+    method: string
+
+  outputs:
+    markdown
+
+  structure:
+    - endpoint
+    - request
+    - response
+    - examples
+
+  examples:
+    - output:
+        ### POST /tasks
+        Creates a task
+
+
+- id: troubleshooting_doc_generator
+  domain: documentation
+  type: generator
+  intent: generate_troubleshooting
+
+  structure:
+    - problem
+    - cause
+    - solution
+
+  examples:
+    - problem: server not starting
+      solution: restart service

@@ -1,0 +1,207 @@
+version: 5.1
+type: troubleshooting
+
+id: task_not_visible
+
+intent:
+  name: task_not_visible
+
+  aliases:
+    - task not visible
+    - cannot see task
+    - task missing
+    - task not showing
+
+  examples:
+    - my task is not visible
+    - task disappeared after creation
+    - I cannot see my task
+
+vocabulary:
+  entity: [task]
+  action: [view, display]
+  failure: [missing, invisible]
+
+semantic:
+  entities: [task]
+  actions: [view, display, fetch]
+  failure_terms: [missing, not visible, invisible, not showing]
+  context_terms: [dashboard, list, refresh]
+
+signals:
+  base:
+    - task
+    - visible
+
+  modifiers:
+    - missing
+    - not showing
+    - invisible
+
+  weighted:
+    high:
+      - task not visible
+      - task missing
+    medium:
+      - cannot see task
+    low:
+      - issue
+
+failure:
+  problem: Task not visible after creation
+
+  causes:
+
+    - id: sync_delay
+      version: 1.1
+
+      label: Data synchronization delay
+
+      description: Task is created but not yet synced to UI
+
+      triggers:
+        - delayed backend sync
+
+      indicators:
+        - appears after refresh
+
+      impact:
+        - temporary invisibility
+
+      signal_map:
+        strong: [sync_delay, refresh_fix]
+        weak: [delay]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [ui_message, system_state]
+        required: false
+
+    - id: filter_issue
+      version: 1.1
+
+      label: Filters hiding task
+
+      description: Task exists but hidden due to active filters
+
+      triggers:
+        - filter applied
+
+      indicators:
+        - appears after clearing filters
+
+      impact:
+        - misleading UI state
+
+      signal_map:
+        strong: [filter_applied]
+        weak: [search]
+
+      confidence:
+        base: 0.5
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [ui_state]
+        required: false
+
+resolution:
+
+  sync_delay:
+    steps:
+      - Refresh the page
+      - Wait for synchronization
+    automation_possible: false
+
+  filter_issue:
+    steps:
+      - Clear filters
+      - Recheck task list
+    automation_possible: false
+
+diagnostics:
+
+  ambiguity_possible: true
+
+  clarification_questions:
+    - Does the task appear after refresh?
+    - Are filters applied?
+
+  decision_tree:
+
+    - condition: sync_delay
+      ask: Does refreshing show the task?
+
+    - condition: filter_issue
+      ask: Are filters enabled?
+
+context:
+  domain: task_management
+  feature: task_visibility
+  platforms: [web, mobile]
+  user_roles: [admin, user]
+
+relationships:
+
+  depends_on: [create_task_api]
+
+  upstream_failures: [task_not_saving]
+
+  downstream_effects: [user_confusion]
+
+  related_intents: [task_not_saving]
+
+constraints:
+
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

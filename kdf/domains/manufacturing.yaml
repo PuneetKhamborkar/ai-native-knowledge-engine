@@ -1,0 +1,5 @@
+- id: quality_check
+  domain: manufacturing
+  type: qc
+  intent: inspect
+  metrics: [defect_rate]

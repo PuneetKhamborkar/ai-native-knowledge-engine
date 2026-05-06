@@ -1,0 +1,15 @@
+intent: task_validation
+domain: it
+keywords: [validation, validate task, input validation]
+conditions: [validation, task]
+steps:
+  - Check required fields
+  - Validate formats
+validation:
+  - title required
+  - title length >= 1
+examples:
+  - {} → 400
+  - {"title":""} → 400
+notes:
+  - Always validate input

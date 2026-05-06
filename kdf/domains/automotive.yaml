@@ -1,0 +1,7 @@
+- id: engine_diagnostics
+  domain: automotive
+  type: diagnostics
+  intent: diagnose
+  inputs:
+    temp: float
+  errors: [overheat]

@@ -1,0 +1,32 @@
+- intent: create_task
+
+  keywords:
+    - create
+    - task
+    - api
+    - validation
+
+  conditions:
+    - create
+    - task
+
+  steps:
+    - "Validate request payload"
+    - "Ensure title is not empty"
+    - "Generate unique task ID"
+    - "Store task in database"
+    - "Return created task"
+
+  examples:
+    - "POST /tasks { title: 'Buy groceries' } → 201 Created"
+    - "POST /tasks { title: '' } → 400 Bad Request"
+
+  api:
+    method: "POST"
+    endpoint: "/tasks"
+
+  notes:
+    - "Title is mandatory"
+    - "Duplicate task should return 409"
+
+  domain: "it"

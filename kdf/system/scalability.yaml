@@ -1,0 +1,11 @@
+id: task_scalability
+type: system
+
+intent: create_task
+
+context:
+  - scalability
+
+rules:
+  - use uuid
+  - add indexing

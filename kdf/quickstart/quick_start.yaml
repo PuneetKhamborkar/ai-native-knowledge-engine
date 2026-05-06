@@ -1,0 +1,5 @@
+- id: quick_start
+  domain: onboarding
+  type: quickstart
+  intent: start
+  steps: [install, run, test]

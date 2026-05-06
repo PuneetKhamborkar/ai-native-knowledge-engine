@@ -1,0 +1,7 @@
+- id: radar_monitor
+  domain: aerospace_defense
+  type: monitoring
+  intent: radar
+  inputs:
+    signal: float
+  errors: [signal_loss]

@@ -1,0 +1,13 @@
+intent: update_task
+domain: it
+keywords: [update task, edit task]
+conditions: [update, task]
+steps:
+  - Fetch task
+  - Update fields
+  - Save
+api:
+  method: PUT
+  endpoint: /tasks/{id}
+notes:
+  - Partial updates allowed

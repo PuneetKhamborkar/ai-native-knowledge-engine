@@ -1,0 +1,11 @@
+- id: system_query_pipeline
+  domain: core
+  type: system
+  intent: process_query
+  steps: [extract_intent, classify_query, retrieve_kdf, rank_results, return_best_match]
+
+- id: system_code_pipeline
+  domain: core
+  type: system
+  intent: generate_code
+  steps: [match_kdf, generate_template, validate_code, run_tests, apply_autofix]

@@ -1,0 +1,5 @@
+- id: dita_task
+  domain: documentation
+  type: dita
+  intent: task_doc
+  steps: [title, prerequisites, steps, result]

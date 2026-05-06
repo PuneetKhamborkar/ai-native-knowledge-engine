@@ -1,0 +1,43 @@
+intent: create_task
+
+description: Create a new task in the system with validation rules
+
+conditions:
+  - create
+  - task
+
+steps:
+  - Validate request payload
+  - Generate unique ID
+  - Store task in database
+  - Return created task
+
+validation:
+  - title must not be empty
+  - title length >= 1
+  - description optional
+  - duplicate task should not exist
+
+examples:
+  - request:
+      POST /tasks
+      body:
+        title: "Buy groceries"
+        description: "Milk, eggs"
+  - response:
+      status: 201
+      body:
+        id: "uuid"
+        title: "Buy groceries"
+
+api:
+  method: POST
+  endpoint: /tasks
+
+edge_cases:
+  - empty title → 400 error
+  - duplicate task → 409 conflict
+
+output:
+  success: task object
+  failure: error message

@@ -1,0 +1,244 @@
+version: 5.1
+type: troubleshooting
+
+id: task_not_saving
+
+intent:
+  name: task_not_saving
+
+  aliases:
+    - task not saving
+    - unable to save task
+    - save failed
+    - error saving task
+
+  examples:
+    - task is not saving
+    - I cannot save my task
+
+vocabulary:
+  entity: [task]
+  action: [save, create]
+  failure: [fail, error]
+
+semantic:
+  entities: [task]
+  actions: [save, create]
+  failure_terms: [fail, error, not saving]
+  context_terms: [form, validation, backend]
+
+signals:
+
+  base:
+    - task
+    - save
+
+  modifiers:
+    - fail
+    - error
+    - not saving
+
+  weighted:
+    high:
+      - save failed
+      - task not saving
+    medium:
+      - save error
+    low:
+      - issue
+
+failure:
+  problem: Task cannot be saved
+
+  causes:
+
+    - id: validation_error
+      version: 1.1
+
+      label: Required fields missing or invalid
+
+      description: Mandatory fields are empty or incorrect
+
+      triggers:
+        - empty fields
+        - invalid input
+
+      indicators:
+        - validation error message
+
+      impact:
+        - task creation blocked
+
+      signal_map:
+        strong: [validation_error, empty_fields]
+        weak: [invalid]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [ui_message]
+        required: false
+
+    - id: permission_issue
+      version: 1.1
+
+      label: Insufficient permissions
+
+      description: User lacks required rights
+
+      triggers:
+        - restricted access
+
+      indicators:
+        - access denied
+
+      impact:
+        - save action blocked
+
+      signal_map:
+        strong: [access_denied]
+        weak: [permission]
+
+      confidence:
+        base: 0.5
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [api_response]
+        required: false
+
+    - id: backend_failure
+      version: 1.1
+
+      label: Backend service failure
+
+      description: Server error or timeout
+
+      triggers:
+        - API failure
+        - timeout
+
+      indicators:
+        - error response
+
+      impact:
+        - task not persisted
+
+      signal_map:
+        strong: [timeout, server_error]
+        weak: [error]
+
+      confidence:
+        base: 0.5
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [api_response, system_log]
+        required: false
+
+resolution:
+
+  validation_error:
+    steps:
+      - Fill all required fields
+      - Validate input format before saving
+    automation_possible: false
+
+  permission_issue:
+    steps:
+      - Verify user permissions
+      - Contact admin if needed
+    automation_possible: false
+
+  backend_failure:
+    steps:
+      - Retry after some time
+      - Check system status dashboard
+    automation_possible: false
+
+diagnostics:
+
+  ambiguity_possible: true
+
+  clarification_questions:
+    - Are you seeing a validation error?
+    - Do you see access denied?
+
+  decision_tree:
+
+    - condition: validation_error
+      ask: Are required fields missing?
+
+    - condition: permission_issue
+      ask: Do you have permission to create tasks?
+
+context:
+  domain: task_management
+  feature: task_creation
+  platforms: [web, mobile]
+  user_roles: [admin, user]
+
+relationships:
+
+  depends_on: [create_task_api]
+
+  upstream_failures: [auth_failure]
+
+  downstream_effects: [task_not_visible]
+
+  related_intents: [task_not_visible]
+
+constraints:
+
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

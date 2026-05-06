@@ -1,0 +1,17 @@
+intent: create_task
+domain: it
+keywords: [create task, task api, add task]
+conditions: [create, task]
+steps:
+  - Receive POST request
+  - Validate payload
+  - Generate ID
+  - Store task
+  - Return response
+api:
+  method: POST
+  endpoint: /tasks
+examples:
+  - POST /tasks {"title":"Buy milk"} → 201
+notes:
+  - Core creation flow

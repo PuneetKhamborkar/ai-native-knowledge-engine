@@ -1,0 +1,130 @@
+version: 5.1
+type: troubleshooting
+
+id: ui_crash
+
+intent:
+  name: ui_crash
+
+  aliases:
+    - app crashed
+    - UI crash
+    - page crashed
+    - screen froze
+
+vocabulary:
+  entity: [ui]
+  action: [render]
+  failure: [crash]
+
+semantic:
+  entities: [ui]
+  actions: [render]
+  failure_terms: [crash, freeze]
+  context_terms: [browser, memory]
+
+signals:
+  base: [ui, crash]
+
+  modifiers: [freeze, broken]
+
+  weighted:
+    high: [app crashed]
+    medium: [screen froze]
+    low: [issue]
+
+failure:
+  problem: UI crash or freeze
+
+  causes:
+
+    - id: frontend_error
+      version: 1.1
+      label: Frontend runtime error
+      description: JS error causing crash
+
+      signal_map:
+        strong: [js_error]
+        weak: [crash]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [console_log]
+        required: false
+
+resolution:
+  frontend_error:
+    steps:
+      - Reload page
+      - Check browser console
+    automation_possible: false
+
+diagnostics:
+  ambiguity_possible: false
+  clarification_questions: []
+  decision_tree: []
+
+context:
+  domain: frontend
+  feature: ui_rendering
+  platforms: [web]
+  user_roles: [user]
+
+relationships:
+  depends_on: []
+  upstream_failures: []
+  downstream_effects: [user_blocked]
+  related_intents: [app_slow]
+
+constraints:
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

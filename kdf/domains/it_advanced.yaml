@@ -1,0 +1,208 @@
+- id: api_create_task_v1
+  domain: it
+  type: api
+  intent: create_task
+
+  inputs:
+    title: string
+    description: string
+
+  conditions:
+    - if title is empty → reject
+    - if length(title) < 3 → reject
+
+  rules:
+    - title is required
+    - description is optional
+
+  outputs:
+    status: 201
+    body:
+      id: uuid
+      title: string
+      description: string
+
+  examples:
+    - request:
+        POST /tasks
+        body:
+          title: "Buy milk"
+          description: "2 liters"
+      response:
+        status: 201
+        body:
+          id: "uuid-123"
+          title: "Buy milk"
+          description: "2 liters"
+
+
+- id: api_update_task_v1
+  domain: it
+  type: api
+  intent: update_task
+
+  inputs:
+    task_id: string
+    title: string
+
+  conditions:
+    - if task_id not exists → 404
+    - if title empty → reject
+
+  outputs:
+    status: 200
+
+  examples:
+    - request:
+        PUT /tasks/123
+        body:
+          title: "Updated"
+      response:
+        status: 200
+
+
+- id: api_delete_task_v1
+  domain: it
+  type: api
+  intent: delete_task
+
+  inputs:
+    task_id: string
+
+  conditions:
+    - if task not found → 404
+
+  outputs:
+    status: 200
+
+  examples:
+    - request:
+        DELETE /tasks/123
+      response:
+        status: 200
+
+
+- id: api_validation_standard
+  domain: it
+  type: validation
+  intent: validate_input
+
+  rules:
+    - reject null required fields
+    - enforce string length limits
+    - sanitize input
+
+  conditions:
+    - if invalid → return 422
+
+  examples:
+    - invalid_input:
+        title: ""
+      output:
+        status: 422
+        error: "Title required"
+
+
+- id: api_error_handling
+  domain: it
+  type: system
+  intent: handle_errors
+
+  rules:
+    - use 400 for bad request
+    - use 404 for not found
+    - use 500 for server errors
+
+  examples:
+    - case: not_found
+      response:
+        status: 404
+        message: "Resource not found"
+
+
+- id: auth_jwt_validation
+  domain: it
+  type: security
+  intent: validate_token
+
+  inputs:
+    token: string
+
+  conditions:
+    - if token expired → reject
+    - if signature invalid → reject
+
+  outputs:
+    status: 200 or 401
+
+  examples:
+    - invalid_token:
+        status: 401
+        message: "Unauthorized"
+
+
+- id: rate_limiting
+  domain: it
+  type: security
+  intent: limit_requests
+
+  conditions:
+    - if requests > 100/min → block
+
+  outputs:
+    status: 429
+
+  examples:
+    - response:
+        status: 429
+        message: "Too many requests"
+
+
+- id: pagination_logic
+  domain: it
+  type: api
+  intent: paginate_results
+
+  inputs:
+    page: int
+    limit: int
+
+  rules:
+    - default limit = 10
+    - max limit = 100
+
+  examples:
+    - request:
+        GET /tasks?page=1&limit=10
+      response:
+        data: []
+        total: 100
+
+
+- id: logging_standard
+  domain: it
+  type: observability
+  intent: log_events
+
+  rules:
+    - log all errors
+    - include request_id
+
+  examples:
+    - log:
+        level: error
+        message: "DB failure"
+
+
+- id: retry_logic
+  domain: it
+  type: system
+  intent: retry_failed_ops
+
+  conditions:
+    - retry only on 5xx errors
+    - max retries = 3
+
+  examples:
+    - case: db_timeout
+      action: retry

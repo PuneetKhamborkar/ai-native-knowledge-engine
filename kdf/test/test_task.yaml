@@ -1,0 +1,11 @@
+id: task_tests
+type: test
+
+intent: create_task
+
+context:
+  - testing
+
+cases:
+  - valid input
+  - missing title

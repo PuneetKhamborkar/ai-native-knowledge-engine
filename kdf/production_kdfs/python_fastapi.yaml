@@ -1,0 +1,14 @@
+intent: python_task_api
+domain: it
+keywords: [python api, fastapi task]
+conditions: [python, api]
+steps:
+  - Create FastAPI app
+  - Define schema
+  - Add POST endpoint
+examples:
+  - |
+    from fastapi import FastAPI
+    app = FastAPI()
+notes:
+  - Use Pydantic

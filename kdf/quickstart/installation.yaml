@@ -1,0 +1,5 @@
+- id: install
+  domain: onboarding
+  type: setup
+  intent: install
+  steps: [clone, pip_install, run]

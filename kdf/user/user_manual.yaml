@@ -1,0 +1,5 @@
+- id: user_manual
+  domain: user
+  type: doc
+  intent: guide
+  steps: [login, usage, faq]

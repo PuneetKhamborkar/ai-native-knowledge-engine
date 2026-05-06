@@ -1,0 +1,20 @@
+system:
+  name: Acme Knowledge OS
+  version: 1.0
+  mode: hybrid
+
+vector_store:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  top_k: 5
+  similarity_threshold: 0.7
+
+execution:
+  enable_code_generation: true
+  enable_doc_generation: true
+  enable_autofix: true
+  max_retries: 2
+  safe_mode: true
+
+kdf:
+  schema_version: 1.0
+  required_fields: [id, domain, type, intent]

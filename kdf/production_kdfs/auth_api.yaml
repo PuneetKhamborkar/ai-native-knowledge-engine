@@ -1,0 +1,9 @@
+intent: api_authentication
+domain: it
+keywords: [auth, authentication, jwt]
+conditions: [auth]
+steps:
+  - Validate token
+  - Authorize request
+notes:
+  - Use JWT

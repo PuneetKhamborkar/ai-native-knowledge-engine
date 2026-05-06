@@ -1,0 +1,140 @@
+version: 5.1
+type: troubleshooting
+
+id: api_failure
+
+intent:
+  name: api_failure
+
+  aliases:
+    - api not working
+    - api failed
+    - endpoint error
+    - api timeout
+
+  examples:
+    - api is failing
+    - endpoint not responding
+
+vocabulary:
+  entity: [api]
+  action: [call, request]
+  failure: [fail, timeout]
+
+semantic:
+  entities: [api, endpoint]
+  actions: [call, request]
+  failure_terms: [fail, timeout, error]
+  context_terms: [response, server]
+
+signals:
+  base: [api, fail]
+
+  modifiers: [timeout, error]
+
+  weighted:
+    high: [api failed, api timeout]
+    medium: [endpoint error]
+    low: [issue]
+
+failure:
+  problem: API request failure
+
+  causes:
+
+    - id: timeout_error
+      version: 1.1
+      label: API timeout
+      description: Server not responding within time
+      triggers: [slow_server]
+      indicators: [timeout_response]
+      impact: api unusable
+
+      signal_map:
+        strong: [api_timeout]
+        weak: [timeout]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [api_response]
+        required: false
+
+resolution:
+  timeout_error:
+    steps:
+      - Retry request
+      - Check backend health
+    automation_possible: false
+
+diagnostics:
+  ambiguity_possible: true
+  clarification_questions:
+    - Are you seeing timeout?
+  decision_tree:
+    - condition: timeout_error
+      ask: Is the API timing out?
+
+context:
+  domain: backend
+  feature: api_layer
+  platforms: [web, mobile]
+  user_roles: [developer]
+
+relationships:
+  depends_on: [backend_services]
+  upstream_failures: []
+  downstream_effects: [feature_failure]
+  related_intents: []
+
+constraints:
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

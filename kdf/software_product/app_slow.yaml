@@ -1,0 +1,204 @@
+version: 5.1
+type: troubleshooting
+
+id: app_slow
+
+intent:
+  name: app_slow
+
+  aliases:
+    - app slow
+    - system slow
+    - performance issue
+    - app lagging
+
+  examples:
+    - app is slow
+    - system lagging
+
+vocabulary:
+  entity: [application]
+  action: [run]
+  failure: [slow, lag]
+
+semantic:
+  entities: [application]
+  actions: [load, run]
+  failure_terms: [slow, lag, delay]
+  context_terms: [network, server]
+
+signals:
+  base:
+    - app
+    - slow
+
+  modifiers:
+    - lag
+    - delay
+
+  weighted:
+    high:
+      - app slow
+    medium:
+      - system slow
+    low:
+      - issue
+
+failure:
+  problem: Application performance is slow
+
+  causes:
+
+    - id: high_load
+      version: 1.1
+
+      label: High system load
+
+      description: System overloaded
+
+      triggers:
+        - peak usage
+
+      indicators:
+        - slow response
+
+      impact:
+        - degraded performance
+
+      signal_map:
+        strong: [high_load]
+        weak: [slow]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [system_metrics]
+        required: false
+
+    - id: network_issue
+      version: 1.1
+
+      label: Network issue
+
+      description: Poor connectivity
+
+      triggers:
+        - unstable network
+
+      indicators:
+        - intermittent loading
+
+      impact:
+        - delayed UI
+
+      signal_map:
+        strong: [network_unstable]
+        weak: [delay]
+
+      confidence:
+        base: 0.5
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [network_log]
+        required: false
+
+resolution:
+
+  high_load:
+    steps:
+      - Retry later
+      - Reduce heavy usage
+    automation_possible: false
+
+  network_issue:
+    steps:
+      - Check internet
+      - Switch network
+    automation_possible: false
+
+diagnostics:
+
+  ambiguity_possible: true
+
+  clarification_questions:
+    - Is system slow for all users?
+    - Is your network stable?
+
+  decision_tree:
+
+    - condition: high_load
+      ask: Is system slow globally?
+
+    - condition: network_issue
+      ask: Is your internet stable?
+
+context:
+  domain: system_performance
+  feature: runtime
+  platforms: [web, mobile]
+  user_roles: [admin, user]
+
+relationships:
+
+  depends_on: [backend_services]
+
+  upstream_failures: []
+
+  downstream_effects: [user_drop]
+
+  related_intents: []
+
+constraints:
+
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

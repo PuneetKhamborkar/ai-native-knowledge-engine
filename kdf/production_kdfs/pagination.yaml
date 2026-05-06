@@ -1,0 +1,9 @@
+intent: api_pagination
+domain: it
+keywords: [pagination, list api]
+conditions: [list]
+steps:
+  - Accept page params
+  - Limit results
+notes:
+  - Use limit/offset

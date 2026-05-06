@@ -1,0 +1,129 @@
+version: 5.1
+type: troubleshooting
+
+id: export_failure
+
+intent:
+  name: export_failure
+
+  aliases:
+    - export not working
+    - cannot download file
+    - export failed
+
+vocabulary:
+  entity: [export]
+  action: [download]
+  failure: [fail]
+
+semantic:
+  entities: [file, export]
+  actions: [download]
+  failure_terms: [fail, error]
+  context_terms: [file, format]
+
+signals:
+  base: [export, fail]
+
+  modifiers: [download, error]
+
+  weighted:
+    high: [export failed]
+    medium: [cannot download file]
+    low: [issue]
+
+failure:
+  problem: Export process failed
+
+  causes:
+
+    - id: file_generation_error
+      version: 1.1
+      label: File generation failure
+      description: File not created
+
+      signal_map:
+        strong: [file_error]
+        weak: [fail]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [system_log]
+        required: false
+
+resolution:
+  file_generation_error:
+    steps:
+      - Retry export
+      - Check file format
+    automation_possible: false
+
+diagnostics:
+  ambiguity_possible: false
+  clarification_questions: []
+  decision_tree: []
+
+context:
+  domain: reporting
+  feature: export
+  platforms: [web]
+  user_roles: [user]
+
+relationships:
+  depends_on: []
+  upstream_failures: []
+  downstream_effects: [report_blocked]
+  related_intents: []
+
+constraints:
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

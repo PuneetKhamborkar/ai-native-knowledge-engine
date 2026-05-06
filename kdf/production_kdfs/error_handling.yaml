@@ -1,0 +1,12 @@
+intent: api_error_handling
+domain: it
+keywords: [error handling, api errors]
+conditions: [error, api]
+steps:
+  - Catch exceptions
+  - Return HTTP codes
+edge_cases:
+  - invalid JSON → 400
+  - server error → 500
+notes:
+  - Structured errors only

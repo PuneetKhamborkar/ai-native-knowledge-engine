@@ -1,0 +1,11 @@
+- id: tutorial_doc
+  domain: documentation
+  type: diataxis
+  intent: tutorial
+  steps: [goal, prerequisites, steps, result]
+
+- id: how_to_doc
+  domain: documentation
+  type: diataxis
+  intent: how_to
+  steps: [problem, steps, validation]

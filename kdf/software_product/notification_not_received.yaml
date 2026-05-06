@@ -1,0 +1,134 @@
+version: 5.1
+type: troubleshooting
+
+id: notification_not_received
+
+intent:
+  name: notification_not_received
+
+  aliases:
+    - not getting notification
+    - notification not received
+    - alerts missing
+
+vocabulary:
+  entity: [notification]
+  action: [receive]
+  failure: [missing]
+
+semantic:
+  entities: [notification]
+  actions: [receive]
+  failure_terms: [missing, not received]
+  context_terms: [email, push]
+
+signals:
+  base: [notification, receive]
+
+  modifiers: [missing]
+
+  weighted:
+    high: [notification not received]
+    medium: [alerts missing]
+    low: [issue]
+
+failure:
+  problem: Notification not received
+
+  causes:
+
+    - id: notification_disabled
+      version: 1.1
+      label: Notifications disabled
+      description: User settings disable notifications
+      triggers: [settings_off]
+      indicators: [no_alerts]
+
+      signal_map:
+        strong: [notifications_off]
+        weak: [missing]
+
+      confidence:
+        base: 0.6
+        boost_if_strong_match: 0.3
+        decay_if_weak: 0.2
+
+      evidence:
+        types: [user_settings]
+        required: false
+
+resolution:
+  notification_disabled:
+    steps:
+      - Enable notifications
+      - Check settings
+    automation_possible: false
+
+diagnostics:
+  ambiguity_possible: true
+  clarification_questions:
+    - Are notifications enabled?
+  decision_tree:
+    - condition: notification_disabled
+      ask: Are notifications turned off?
+
+context:
+  domain: user_settings
+  feature: notifications
+  platforms: [web, mobile]
+  user_roles: [user]
+
+relationships:
+  depends_on: [notification_service]
+  upstream_failures: []
+  downstream_effects: [missed_alerts]
+  related_intents: []
+
+constraints:
+  - do_not_infer_new_causes
+  - only_use_defined_signal_map
+  - enforce_string_signals_only
+  - no_cross_intent_resolution
+
+# =========================
+# 🔒 KDF HARDENING LAYER (v5.1)
+# =========================
+
+signal_rules:
+  min_base_tokens: 2
+  forbid_generic:
+    - issue
+    - problem
+    - error
+    - fail
+    - not working
+    - broken
+
+intent_gate:
+  required_base_match: true
+  min_match_count: 1
+
+validation:
+  enforce_string_signals: true
+  reject_numeric_signals: true
+  sanitize_inputs: true
+
+confidence_policy:
+  min_confidence: 0.5
+  fallback_on_low_confidence: true
+  require_strong_signal_for_resolution: true
+
+routing_guard:
+  prevent_cross_intent_bleed: true
+  require_intent_match_before_cause_scoring: true
+
+normalization:
+  lowercase: true
+  strip_special_chars: true
+  multilingual_input: true
+  translate_to_english_before_matching: true
+
+safety:
+  no_freeform_generation: true
+  only_kdf_grounded_response: true
+  block_unknown_causes: true

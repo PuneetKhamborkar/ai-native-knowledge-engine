@@ -1,0 +1,9 @@
+- id: pipeline_monitoring
+  domain: oil_gas
+  type: monitoring
+  intent: monitor
+  inputs:
+    pressure: float
+  rules:
+    - pressure in range
+  errors: [leakage]
