@@ -1,3 +1,16 @@
+# 🚀 AI-Native Knowledge System
+
+### From static documentation → to intelligent, reasoning systems
+
+---
+
+## 🔥 What is this?
+
+Most documentation systems are **passive**.
+They store information—but don’t *understand* it.
+
+This project flips that.
+
 👉 This is an **AI-native Knowledge System** that:
 
 * Understands user queries (even messy, multilingual input)
