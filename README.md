@@ -1,139 +1,240 @@
-AcmeTasker — AI-Native Troubleshooting System
+👉 This is an **AI-native Knowledge System** that:
 
-AcmeTasker is an AI-native troubleshooting system for enterprise workflows.
-
-It helps users diagnose and resolve operational issues such as:
-- task creation failures
-- visibility problems
-- permission errors
-- system performance issues
-
-The system delivers precise, reliable, and non-hallucinated answers by combining structured knowledge with a controlled AI interface.
+* Understands user queries (even messy, multilingual input)
+* Reasons across structured knowledge (KDFs)
+* Returns **validated, non-hallucinated answers**
 
 ---
 
-Core Design Principles
+## ⚡ Example
 
-1. Structured Knowledge as Source of Truth (KDF)
+**User Input:**
 
-All domain knowledge is stored in Knowledge Definition Files (KDFs).
+```text
+task save ho nahi raha
+```
 
-KDFs define:
-- failure scenarios
-- possible causes
-- resolution steps
+**System Output:**
 
-KDFs are the single source of truth.
-AI does not generate or modify this knowledge.
+```text
+Task cannot be saved
 
----
+Cause:
+Required fields missing or invalid
 
-2. Controlled AI Layer (Interpretation, Not Generation)
+Fix Steps:
+1. Fill all required fields
+2. Validate input format before saving
+```
 
-AI is used to:
-- interpret user intent
-- map queries to the correct KDF
-- present responses clearly
-
-AI does NOT:
-- invent causes
-- generate fixes
-- alter structured knowledge
+👉 Input: Hindi + broken English
+👉 Output: Structured, precise, actionable
 
 ---
 
-3. Deterministic Resolution System
+## 🧠 Core Idea
 
-Once intent is identified:
-- the system retrieves the exact KDF
-- matches relevant causes using deterministic logic
-- returns predefined resolution steps
+Instead of relying only on LLMs:
+
+```text
+LLM (reasoning) + KDFs (truth) + Validator (safety)
+```
 
 This ensures:
-- consistency
-- predictability
-- auditability
+
+* ❌ No hallucinations
+* ✅ Deterministic outcomes
+* ✅ Production reliability
 
 ---
 
-4. Separation of Responsibilities
+## 🧩 Architecture
 
-- Knowledge → KDFs (human-curated, version-controlled)
-- Matching → deterministic logic (Python)
-- Language → AI (clarity, formatting, multilingual support)
-
-This separation prevents hallucination and maintains control.
-
----
-
-5. Failure-Centric Architecture
-
-The system is designed around real-world problems.
-
-Instead of feature-based documentation:
-“How to create a task”
-
-It focuses on:
-“Why is task creation failing and how to fix it”
-
----
-
-6. Multilingual Query Handling
-
-Users can ask questions in:
-- English
-- mixed-language formats (e.g., Hinglish, Kannada-English)
-
-The system:
-- interprets intent using AI
-- responds clearly using grounded knowledge
-
----
-
-7. Human-in-the-Loop Knowledge System
-
-KDFs are:
-- authored and maintained by humans
-- continuously improved
-- version-controlled
-
-AI operates strictly on top of this curated layer.
-
----
-
-What Makes AcmeTasker AI-Native
-
-Traditional systems:
-- rely on AI to generate answers
-- depend on static documentation
-
-AcmeTasker:
-- separates knowledge from language
-- grounds every answer in structured data (KDF)
-- uses AI only as an interface layer
-
-This eliminates hallucination while preserving flexibility.
-
----
-
-System Flow
-
-User Query
+```text
+User Input
    ↓
-AI Intent Detection
+Multimodal Processor (text / voice ready)
    ↓
-KDF Retrieval (source of truth)
+LLM Reasoning Layer
    ↓
-Deterministic Cause Matching
+KDF Retrieval (structured knowledge)
    ↓
-Controlled AI Response (language only)
+Validation Engine (strict grounding)
+   ↓
+Final Answer (safe + structured)
+```
 
 ---
 
-Outcome
+## 🗂️ Project Structure
 
-- precise answers
-- zero hallucination
-- consistent troubleshooting
-- faster issue resolution
-- high trust in responses
+```text
+AcmeTasker_MVP/
+├── acmetasker-ui/        # Next.js frontend
+├── backend/              # AI engine + APIs
+├── kdf/                  # Knowledge Definition Files (truth layer)
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 🧠 What are KDFs?
+
+KDF = **Knowledge Definition File**
+
+They define:
+
+* Intent
+* Failure scenarios
+* Causes
+* Resolution steps
+
+👉 Think of them as **structured, machine-readable knowledge**
+
+Example:
+
+```yaml
+intent:
+  name: task_not_saving
+
+failure:
+  problem: Task cannot be saved
+
+  causes:
+    - id: validation_error
+      label: Required fields missing or invalid
+
+resolution:
+  validation_error:
+    steps:
+      - Fill all required fields
+      - Validate input format before saving
+```
+
+---
+
+## 🚀 Getting Started (Local)
+
+### 1. Clone repo
+
+```bash
+git clone https://github.com/PuneetKhamborkar/ai-native-knowledge-engine.git
+cd ai-native-knowledge-engine
+```
+
+---
+
+### 2. Backend setup
+
+```bash
+cd backend
+pip install -r ../requirements.txt
+python3 app.py
+```
+
+👉 Runs on: `http://127.0.0.1:5001`
+
+---
+
+### 3. Frontend setup
+
+```bash
+cd acmetasker-ui
+npm install
+npm run dev
+```
+
+👉 Open: `http://localhost:3000`
+
+---
+
+## 🧪 Test via API
+
+```bash
+curl -X POST http://127.0.0.1:5001/ask \
+-H "Content-Type: application/json" \
+-d '{"query":"task save ho nahi raha"}'
+```
+
+---
+
+## 🌍 Features
+
+* ✅ Multilingual input (Hindi + English mix)
+* ✅ AI reasoning (LLM-based)
+* ✅ Deterministic validation layer
+* ✅ Structured outputs (problem → cause → fix)
+* ✅ Plug-and-play knowledge via KDFs
+* ⚡ Local LLM ready (Ollama support)
+
+---
+
+## 🎯 Why this matters
+
+Most AI systems today:
+
+```text
+Input → LLM → Output (unreliable)
+```
+
+This system:
+
+```text
+Input → LLM → Knowledge → Validation → Trusted Output
+```
+
+👉 This is the shift from:
+
+* AI assistants → AI systems
+* chatbots → decision engines
+
+---
+
+## 🔮 Future Scope
+
+* Voice input (Whisper)
+* Image-based debugging
+* Auto-learning KDFs
+* Enterprise integrations
+* Observability + feedback loops
+
+---
+
+## 🙌 Demo Strategy
+
+This repo is designed for:
+
+* 🎥 Demo videos
+* 💼 Portfolio showcasing
+* 🧠 System design discussions
+* 🚀 AI product experimentation
+
+---
+
+## 👤 Author
+
+**Puneet Khamborkar**
+Building AI-native systems at the intersection of:
+
+* Technical Writing
+* Product Thinking
+* Applied AI
+
+---
+
+## ⭐ If you found this interesting
+
+* Star the repo
+* Share your thoughts
+* Let’s build smarter systems
+
+---
+
+## 💡 Final Thought
+
+> Documentation tells you *what to do*
+>
+> AI-native systems understand *what you mean*
+>
+> This project is a step toward that future.
